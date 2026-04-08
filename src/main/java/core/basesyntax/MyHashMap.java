@@ -5,32 +5,11 @@ import java.util.Objects;
 public class MyHashMap<K, V> implements MyMap<K, V> {
     private static final int DEFAULT_INITIAL_CAPACITY = 16;
     private static final float DEFAULT_LOAD_FACTOR = 0.75f;
-
-    private class Node<K, V> {
-        private final int hash;
-        private final K key;
-        private V value;
-        private Node<K, V> next;
-
-        public Node(int hash, K key, V value, Node<K, V> next) {
-            this.hash = hash;
-            this.key = key;
-            this.value = value;
-            this.next = next;
-        }
-    }
-
-    private Node<K, V>[] table;
-    private int size;
-    private int threshold;
+    private static final int HASH_MASK = Integer.MAX_VALUE;
 
     public MyHashMap() {
         table = new Node[DEFAULT_INITIAL_CAPACITY];
         threshold = (int) (DEFAULT_INITIAL_CAPACITY * DEFAULT_LOAD_FACTOR);
-    }
-
-    private int hash(K key) {
-        return key == null ? 0 : key.hashCode();
     }
 
     @Override
@@ -39,7 +18,7 @@ public class MyHashMap<K, V> implements MyMap<K, V> {
             resize();
         }
         int hash = hash(key);
-        int index = (hash & Integer.MAX_VALUE) % table.length;
+        int index = (hash & HASH_MASK) % table.length;
         Node<K, V> current = table[index];
         while (current != null) {
             if (current.hash == hash && Objects.equals(current.key, key)) {
@@ -57,7 +36,7 @@ public class MyHashMap<K, V> implements MyMap<K, V> {
     @Override
     public V getValue(K key) {
         int hash = hash(key);
-        int index = (hash & Integer.MAX_VALUE) % table.length;
+        int index = (hash & HASH_MASK) % table.length;
         Node<K, V> current = table[index];
         while (current != null) {
             if (current.hash == hash && Objects.equals(current.key, key)) {
@@ -79,7 +58,7 @@ public class MyHashMap<K, V> implements MyMap<K, V> {
         for (Node<K, V> node : table) {
             while (node != null) {
                 Node<K, V> next = node.next;
-                int index = (node.hash & Integer.MAX_VALUE) % newCapacity;
+                int index = (node.hash & HASH_MASK) % newCapacity;
                 node.next = newTable[index];
                 newTable[index] = node;
                 node = next;
@@ -88,7 +67,26 @@ public class MyHashMap<K, V> implements MyMap<K, V> {
         table = newTable;
         threshold = (int) (newCapacity * DEFAULT_LOAD_FACTOR);
     }
+
+    private int hash(K key) {
+        return key == null ? 0 : key.hashCode();
+    }
+
+    private class Node<K, V> {
+        private final int hash;
+        private final K key;
+        private V value;
+        private Node<K, V> next;
+
+        public Node(int hash, K key, V value, Node<K, V> next) {
+            this.hash = hash;
+            this.key = key;
+            this.value = value;
+            this.next = next;
+        }
+    }
+
+    private Node<K, V>[] table;
+    private int size;
+    private int threshold;
 }
-
-
-
