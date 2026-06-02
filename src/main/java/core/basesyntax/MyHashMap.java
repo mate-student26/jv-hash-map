@@ -1,5 +1,6 @@
 package core.basesyntax;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 public class MyHashMap<K, V> implements MyMap<K, V> {
@@ -7,9 +8,35 @@ public class MyHashMap<K, V> implements MyMap<K, V> {
     private static final float DEFAULT_LOAD_FACTOR = 0.75f;
     private static final int HASH_MASK = Integer.MAX_VALUE;
 
+    private Node<K, V>[] table;
+    private int size;
+    private int threshold;
+
     public MyHashMap() {
         table = new Node[DEFAULT_INITIAL_CAPACITY];
         threshold = (int) (DEFAULT_INITIAL_CAPACITY * DEFAULT_LOAD_FACTOR);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof MyHashMap<?, ?> myHashMap)) {
+            return false;
+        }
+
+        return getSize() == myHashMap.getSize()
+                && threshold == myHashMap.threshold
+                && Arrays.equals(table, myHashMap.table);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(getSize(), threshold);
+        result = 31 * result + Arrays.hashCode(table);
+        return result;
     }
 
     @Override
@@ -85,8 +112,4 @@ public class MyHashMap<K, V> implements MyMap<K, V> {
             this.next = next;
         }
     }
-
-    private Node<K, V>[] table;
-    private int size;
-    private int threshold;
 }
